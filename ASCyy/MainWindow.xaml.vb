@@ -31,7 +31,8 @@ Class MainWindow
     Public charMapFont As Typeface = New Typeface("Consolas")
     Public charMapFontSize As Integer = 12
 
-    Public charLines As Integer = 40
+    Public charLines As Integer = 25
+    Dim imageStringLines(charLines - 1) As String
 
     Public taskCount As Integer = 0
     Public taskLock As New Object
@@ -44,6 +45,8 @@ Class MainWindow
     'http://i.imgur.com/0L5594g.jpg
     'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png
     'http://www.iconsdb.com/icons/preview/purple/circle-xxl.png
+
+    Dim convertOnce As Boolean = False
 
     Public Sub UpdateCharBitmaps()
         charBitmaps.Clear()
@@ -119,8 +122,11 @@ Class MainWindow
             Next
         Next
 
-        Dim t As New Thread(AddressOf ConvertThread)
-        t.Start()
+        'Dim t As New Thread(AddressOf ConvertThread)
+        't.Start()
+
+        convertLinear()
+        'ConvertThread()
     End Sub
 
     Function GetPerceivedBrightness(ByVal c As Color) As Double
@@ -144,7 +150,10 @@ Class MainWindow
 
         Dim taskFactory As New TaskFactory
 
-        Dim imageStringLines(charLines - 1) As String
+
+        For i As Integer = 0 To charLines - 1
+            imageStringLines(i) = ""
+        Next
 
         taskCount = 0
         For lineY As Integer = 0 To charLines - 1
@@ -156,10 +165,30 @@ Class MainWindow
         While taskCount < charLines
             imageStringJoin = String.Join(vbNewLine, imageStringLines)
             Dispatcher.Invoke(Sub() TextBox1.Text = imageStringJoin)
-            Thread.Sleep(500)
+            Thread.Sleep(1000)
         End While
-        imageStringJoin = String.Join(vbNewLine, imageStringLines)
-        Dispatcher.Invoke(Sub() TextBox1.Text = imageStringJoin)
+        'imageStringJoin = String.Join(vbNewLine, imageStringLines)
+        'Dispatcher.Invoke(Sub() TextBox1.Text = imageStringJoin)
+    End Sub
+
+    Sub convertLinear()
+        TextBox1.FontFamily = charMapFont.FontFamily
+        TextBox1.FontSize = charMapFontSize
+
+        If convertOnce = True Then
+            Exit Sub
+        End If
+        convertOnce = True
+
+        For i As Integer = 0 To charLines - 1
+            imageStringLines(i) = ""
+        Next
+
+        For lineY As Integer = 0 To charLines - 1
+            ConvertLine(lineY, imageStringLines(lineY))
+            TextBox1.Text += imageStringLines(lineY) & vbNewLine
+            Console.WriteLine(lineY.ToString)
+        Next
     End Sub
 
     Sub ConvertLine(ByVal line As Integer, ByRef outputString As String)
@@ -248,12 +277,13 @@ Class MainWindow
 
         'convertImage = New BitmapImage(New Uri(Clipboard.GetText))
         'convertImage = New BitmapImage(New Uri("http://www.iconsdb.com/icons/preview/purple/circle-xxl.png"))
-        'convertImage = New BitmapImage(New Uri("https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png"))
+        convertImage = New BitmapImage(New Uri("https://imgaz3.staticbg.com/thumb/large/oaupload/banggood/images/57/99/63b33f8a-923f-42ee-9b61-c7e6ee54e076.jpg"))
         'convertImage = New BitmapImage(New Uri("http://zdnet1.cbsistatic.com/hub/i/2015/09/01/cb834e24-18e7-4f0a-a9bf-4c2917187d3f/83bb139aac01023dbf3e55a3d1789ad8/google-new-logo.png"))
         'convertImage = New BitmapImage(New Uri("http://i.imgur.com/0L5594g.jpg"))
-        'convertImage = New BitmapImage(New Uri("http://jonvilma.com/images/apple-16.jpg"))
-        convertImage = New BitmapImage(New Uri("C:\Users\Justin B\Pictures\tKagYho-.jpg"))
+        'convertImage = New BitmapImage(New Uri("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgfZeQfcPa39Zodu_eXAUs9xYjmRk5lBry4TWh5nCWiWLf7dka-g&s"))
+
+        'convertImage = New BitmapImage(New Uri("C:\Users\Justin B\Pictures\tKagYho-.jpg"))
         'convertImage = New BitmapImage(New Uri("C:\Users\Justin B\Pictures\red-party-cups-solo.jpg"))
-        convertImageLoaded()
+        'convertImageLoaded()
     End Sub
 End Class
